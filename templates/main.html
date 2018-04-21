@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="main_container" style="width: 600px">
+        <form id="main_form" method=post enctype=multipart/form-data>
+            <p >Параметры доступных методов(результаты в консоли): <select id='methods' name="method"> </select></p>
+            <script>
+               $.ajax({
+                    type: "GET",
+                    url: "/methods"
+                }).error(function (xhr, error_mess) {
+                    console.log(xhr.responseText);
+                }).done(function(data) {
+                   console.log(data);
+                   var $el = $("#methods");
+                   $el.empty();
+                   $.each(data, function(key,value) {
+                      $el.append($("<option></option>").attr("value", value).text(value));
+                   });
+
+               });
+                function update_method_params()
+                {
+                    var method = $("#methods").get(0).value;
+                    var reqstr = '/format/'+method;
+                   $.ajax({
+                        type: "GET",
+                        url: reqstr
+                    }).error(function (xhr, error_mess) {
+                        console.log(xhr.responseText);
+                    }).done(function(data) {
+                        console.log(data);
+                   });
+                }
+                $("#methods").change(update_method_params);
+            </script>
+            <textarea id="request_div" class="debug_container" style="left:120px; top: 150px">
+{
+    "method": "KMeans",
+    "parameters": {
+        "n_clusters": 2,
+        "precompute_distances": "True"
+    },
+    "data":
+    [
+        [1.1, 1.2],
+        [0.9, 1.1],
+        [2.1, 1.9],
+        [1.9, 2.2]
+    ]
+}
+            </textarea>
+            <input id='submit_btn' type=submit value="Отправить запрос" >
+            <script>
+                $("#main_form").on( "submit", function( event ) {
+                    event.preventDefault();
+                    var request_data = $('#request_div').val();
+                   $.ajax({
+                        type: "POST",
+                        url: "/submit",
+                        data: request_data,
+                       contentType:"application/json; charset=utf-8",
+                       dataType:"json",
+                    }).error(function (xhr, error_mess) {
+                        console.log('Произошла ошибка');
+                        console.log(xhr.responseText);
+                    }).done(function(data) {
+                       console.log(data);
+                   });
+                });
+            </script>
+        </form>
+    </div>
+{% endblock %}
+
+
+
+
+
+
+
+{#
+
+{% extends "layout.html" %}
+{% block body %}
+    <div class="decor_box"> </div>
+    <div class="main_container" style="width: 600px">
+        <h1>Hello there!</h1>
+        <div class="loading_div" style="display: none; position: absolute;z-index: -1; right: 150px;top: 0px;">
+            <img src="{{ url_for('static', filename='img/loading.gif') }}" width="600px">
+        </div>
+        <form id="main_form" method=post enctype=multipart/form-data>
+            <p>
+                <p>Выберите один из доступных методов:</p>
+                <select id='methods' name="method">
+                    {% for method, method_params in methods_and_params.items() %}
+                        <option value="{{ method }}">{{ method }}</option>
+                    {% endfor %}
+                </select>
+                <script>
+                    // Вешаем слушатель на selector метода, которы  будет спрашивать у сервера описание аргументов
+                    // выбранного метода.
+                    function update_method_params()
+                    {
+                        var method = $("#methods").get(0).value;
+                        $.get('/form/'+method).done(function (data) {
+                            $('#params_tab').html(data);
+                        })
+                    }
+                    update_method_params();
+                    $("#methods").change(update_method_params);
+                </script>
+                <p>Настройка параметров метода:</p>
+                <div id="params_tab" class="tab_div"> </div>
+                <br>
+                <div class="notes_tab" style="    ">
+                    <p>Пояснение для ввода значений:</p>
+                    <ul>
+                        <li>Все значения вводятся без каких-либо скобок или кавычек(включая строки).</li>
+                        <li>Булевы значения следует вводить как True или False(чувствительно к регистру)</li>
+                        <li>Допустимые форматы вещественных значений :
+                            <ul>
+                                <li>1e10</li>
+                                <li>1.0</li>
+                                <li>1,0</li>
+                            </ul>
+                        </li>
+                        <li>Все не заполненные поля трактуются как значения по умолчанию, указанные в сигнатуре метода.</li>
+                    </ul>
+                </div>
+                <p> Выберите файл с входными данными:</p>    <input type=file name="file">
+                <input id='submit_btn' type=submit value="Запуск метода" >
+                <a id='result' href="" style="display: none;"> Результат</a>
+            </p>
+            <script>
+                $("#main_form").on( "submit", function( event ) {
+                    event.preventDefault();
+                    $(".loading_div").toggle();
+                    $("#result").hide();
+                    //var form_data = $( this ).serialize();
+                    var form_data = new FormData(this);
+                   $.ajax({
+                        type: "POST",
+                        url: "/",
+                        data: form_data,
+                        processData: false,
+                        contentType: false,
+                    }).error(function (xhr, error_mess) {
+                        $(".loading_div").toggle();
+                        alert('Произошла ошибка');
+                        console.log(xhr.responseText);
+                    }).done(function(data) {
+                       alert('Готово!.');
+                       $(".loading_div").toggle();
+                       $("#result").attr("href", data);
+                       $("#result").toggle();
+
+                   });
+                });
+            </script>
+        </form>
+    </div>
+{% endblock %}
+
+#}

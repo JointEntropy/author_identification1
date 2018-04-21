@@ -1,0 +1,45 @@
+html
+{
+    font-family: 'Open Sans', sans-serif;
+    padding: 25px 0px 0px 75px;
+}
+td
+{
+    padding: 2px;
+    max-height: 40px;
+    font-size: 9pt;
+    padding: 5px;
+}
+input
+{
+    padding: 2px;
+}
+.tab_div
+{
+    overflow-y: scroll;
+    max-height: 200px;
+    max-width: 600px;
+    background-color: #E8E8E8;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.notes_tab
+{
+    background-color: #f9f9f9;
+    font-size: 10pt;
+    padding: 3px 0px 5px 25px;
+    border-radius: 10px;
+}
+
+
+.debug_container
+{
+    background-color: #5884601c;
+    height: 300px;
+    width: 600px;
+    position: absolute;
+    border-radius: 15px;
+    padding: 10px;
+    border-color: #52c5be00;
+}
