@@ -19,10 +19,10 @@ import json
 
 ALLOWED_EXTENSIONS = set(['json'])
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 
 app = Flask(__name__)
@@ -35,7 +35,7 @@ def debug_page():
     Отрисовка страницы ручной отправки данных.
     :return: страница ручной отправки данных.
     """
-    return render_template('hand.html')
+    return render_template('main.html')
 
 
 @app.route('/submit', methods=['POST'])
@@ -45,11 +45,15 @@ def submit():
     :return: список кортежей: метка кластера, входной объект.
     """
     request_data = json.loads(request.data.decode('utf8'))
-    try:
-        result = calculate(**request_data)
-    except ValueError:
-        return abort(400)
-    result = json.dumps(result, indent=3)  # это надо закомментить, как только не нужна будет строка для дебага
+    # try:
+    #     result = calculate(**request_data)
+    # except ValueError:
+    #     return abort(400)
+
+    result = {"author": "Ленин",
+              "prob": 0.93 ,
+              "img_url": "https://s11.stc.all.kpcdn.net/share/i/12/10034942/inx960x640.jpg"}
+    result = json.dumps(result, indent=3)
     response = Response(result, mimetype='text/json')
     # response.headers['Content-Disposition'] = "inline; filename=" + filename
     return response
@@ -99,16 +103,10 @@ def upload_file():
             filename = secure_filename(file.filename)
             # Сохраняем файл в директории
             file.save(os.path.join(app.instance_path, filename))#app.config['UPLOAD_FOLDER'], filename))
-            # Тут начинаем процесс вычисления.
-            result_path = calculate(request.form.to_dict(),
-                                    os.path.join(app.instance_path, filename),
-                                    # os.path.join(app.config['UPLOAD_FOLDER'], filename),
-                                    result_dir=app.instance_path, #app.config['UPLOAD_FOLDER'],
-                                    result_name=str(randint(0, 10**5))+'.json')
+
             # Перенаправляем пользователя, как только так сразу.
-            url = url_for('uploaded_file', filename=result_path)  # первый аргумент url_for -  название контроллера.
-            return url
-            # return redirect(url_for('uploaded_file', filename=result_path))
+            # url = url_for('uploaded_file', filename=result_path)  # первый аргумент url_for -  название контроллера.
+            # return url
         else:
             flash('Invalid extension of selected file')
             return redirect(request.url)
