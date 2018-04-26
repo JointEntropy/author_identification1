@@ -1,32 +1,19 @@
+from gvars import app
+from flask_sqlalchemy import SQLAlchemy
 import os
-import glob
-from flask import Flask, request, render_template,   Response, abort
-from flask import Flask, flash, request, redirect, url_for, render_template,  send_file
-from scikit_interface import calculate
+from flask import   Response, abort
+from flask import  flash, request, redirect, url_for, render_template,  send_file
 from werkzeug.utils import secure_filename
 import json
+from backend import MBackEnd
+from tools.file_filter import allowed_file
+from models import User, Author, Composition
+from sqlalchemy.orm import load_only
+from tools.decoders import  Decoder
+from predict_models import BWordCharLSTM, WordLSTM, PredictModel
+from gvars import modal_package_path
 
-
-# def parse_methods(dirname):
-#     methods = {}
-#     for descr_file in glob.glob(os.path.join(dirname, '*.json')):
-#         name = (descr_file.rsplit(os.path.sep, maxsplit=1)[1]).split('.')[0]
-#         methods[name] = open(descr_file, 'r').read()
-#     return methods
-#
-# METHODS_AND_PARAMS = parse_methods(dirname='methods')
-
-
-ALLOWED_EXTENSIONS = set(['json'])
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-app = Flask(__name__)
-app.secret_key = 'Master Kenobi!'
+from tools.init_db import  restore_after_flush
 
 
 @app.route('/', methods=['GET'])
@@ -38,17 +25,44 @@ def debug_page():
     return render_template('main.html')
 
 
+@app.route('/authors', methods=['GET'])
+def get_authors():
+    """
+    Отрисовка страницы ручной отправки данных.
+    :return: страница ручной отправки данных.
+    """
+    result = be.get_authors()
+    result = json.dumps(result, indent=3)
+    response = Response(result, mimetype='text/json')
+    return response
+
+
+@app.route('/add_comp', methods=['POST'])
+def add_composition():
+    try:
+        request_data = json.loads(request.data.decode('utf8'))
+        composition = {
+            'author_name': request_data['author_name'],
+            'text': request_data['text'],
+            'title':  request_data['text']
+        }
+        be.add_composition(composition)
+    except ValueError:
+        return abort(400)
+
+    result = json.dumps({}, indent=3)
+    response = Response(result, mimetype='text/json')
+    # response.headers['Content-Disposition'] = "inline; filename=" + filename
+    return response
+
 @app.route('/submit', methods=['POST'])
 def submit():
-    """
-    Обработка post запроса на кластеризацию полученных данных.
-    :return: список кортежей: метка кластера, входной объект.
-    """
-    request_data = json.loads(request.data.decode('utf8'))
-    # try:
-    #     result = calculate(**request_data)
-    # except ValueError:
-    #     return abort(400)
+    try:
+        request_data = json.loads(request.data.decode('utf8'))
+        text = request_data['text']
+        result = be.predict(text)
+    except ValueError:
+        return abort(400)
 
     result = {"author": "Ленин",
               "prob": 0.93 ,
@@ -59,29 +73,47 @@ def submit():
     return response
 
 
-@app.route('/methods', methods=['GET'])
-def get_methods():
-    """
-    Получение списка названий доступных методов.
-    :return: список названий доступных методов в формате json.
-    """
-    methods = list(METHODS_AND_PARAMS.keys())
-    return Response(json.dumps(methods), mimetype='text/json')
+@app.route('/comp/<comp_id>')
+def composition(comp_id):
+    composition = be.get_composition(comp_id)
+    return render_template('text_view.html', editable=True, entity_name='author', **composition)
 
 
-@app.route('/format/<method>')
-def method_description(method):
-    """
-    Получение описания полей для метода.
-    :param method: имя метода для которого требуется получить описание.
-    :return: словарь с описания полей  в формате json и ссылка для результата.
-    """
-    if method in METHODS_AND_PARAMS:
-        response = {
-            'submit_url': '/submit',
-            'fields': json.loads(METHODS_AND_PARAMS[method])
-        }
-        return Response(json.dumps(response), mimetype='text/json')
+@app.route('/index/<entity_name>/<page_id>')
+def index(entity_name, page_id):
+    filter_col = request.args.get('filter_col', None)
+    filter_idx = request.args.get('filter_idx', None)
+    MAX_ITEMS_PER_PAGE = 15
+    page_id = int(page_id)
+
+    if entity_name == 'author' and str(filter_col) == 'None':
+        paginator = Author.query.options(load_only('name', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
+        entities = paginator.items
+        header='Авторы'
+
+    elif entity_name == 'composition' and filter_col == 'author':
+        paginator = Composition.query.filter_by(author_id=filter_idx).\
+            options(load_only('title', 'author_id', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
+        entities = paginator.items
+        header = Author.query.get(filter_idx).name
+    elif entity_name == 'composition':
+        paginator = Composition.query.options(load_only('title', 'author_id', 'id')).paginate(page_id,
+                                                                      MAX_ITEMS_PER_PAGE, False)
+        entities = paginator.items
+        header='Произведения'
+    return render_template('index.html', header=header, entity_name=entity_name,
+                           entities=entities,
+                           page_id=page_id,
+                           pages=paginator.pages, # pages stands for max_pages
+                           filter_col=filter_col,
+                           filter_idx=filter_idx)
+
+
+@app.route('/author/<author_id>')
+def author_info(author_id):
+    author = be.get_author_info(author_id)
+    if author is not None:
+        return Response(json.dumps(author), mimetype='text/json')
     else:
         return abort(400)
 
@@ -114,5 +146,15 @@ def upload_file():
 
 
 if __name__ == '__main__':
-    app.run()
+    restore_after_flush()
+
+    db = SQLAlchemy()
+    decoder = Decoder(None)
+    inner_model = WordLSTM(modal_package_path) #BWordCharLSTM(modal_package_path)
+    model = PredictModel(inner_model)
+    be = MBackEnd(model, db, decoder)
+
+    # app.config['DEBUG'] = True
+    # сейчас app импортится из вьюхи...
+    app.run(host='0.0.0.0')
 

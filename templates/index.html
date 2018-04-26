@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <style>
+            ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                background-color: #f1f1f1;
+            }
+
+            li a {
+                display: block;
+                color: #000;
+                padding: 8px 16px;
+                text-decoration: none;
+            }
+
+            /* Change the link color on hover */
+            li a:hover {
+                background-color: #555;
+                color: white;
+            }
+    </style>
+    <h2>{{ header}}</h2>
+    <ul id="list_modal_select">
+    {% for entity in entities%}
+        <li>
+            <a class='item' {{ "href=/comp/"+entity.id|string if entity_name=="composition"}}  id="{{ entity.id }}">
+                {{ entity.name if entity.name else  entity.title}}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+    <p>
+    {% if page_id > 1 %}
+        <a href="/index/{{entity_name}}/{{ 1 }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+            К первой
+        </a>
+        |
+        <a href="/index/{{entity_name}}/{{ page_id-1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+           Предыдущая страница
+        </a>
+    {% endif %}
+    |
+    {% if page_id <pages-1 %}
+        <a href="/index/{{entity_name}}/{{ page_id+1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+           Следующая страница
+        </a>
+        |
+        <a href="/index/{{entity_name}}/{{ pages }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+            К последней
+        </a>
+    {% endif %}
+
+
+
+
+    </p>
+    {%  if entity_name=="author" %}
+        <script>
+        $(".item").click(function(e) {
+            event.preventDefault();
+                var idx = this.id;
+                $.ajax({
+                    type: "GET",
+                    url: "/{{ entity_name }}/"+idx,
+                }).error(function (xhr, error_mess) {
+                    console.log('Произошла ошибка');
+                    console.log(xhr.responseText);
+                }).done(function(data) {
+                    $("#author_header").html(data["name"]);
+                    $("#author_info_text").html(data["bio"]);
+                    $("#author_img").attr('src',data['img_url']);
+                    $("#filter_idx").attr('value', idx);
+                    $('#author_info').toggle();
+                });
+
+        });
+        </script>
+    {% endif %}
+
+{% endblock %}

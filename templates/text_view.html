@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div style=" text-align: center; width: 100%;">
+    {% if editable %}
+        <h1>{{ title.strip("<>") }}</h1>
+        <h3 id="author"> Автор: {{ author_name }}</h3>
+        <div style="text-align: justify; white-space: pre-wrap; width: 75%; overflow: scroll; max-height: 600px; display: inline-block;">
+            {{ text|string }}
+        </div>
+    {% else%}
+
+    {% endif %}
+    <script>
+    $("#author").click(function(e) {
+        event.preventDefault();
+        var idx = {{ author }};
+        $.ajax({
+            type: "GET",
+            url: "/{{ entity_name }}/"+idx,
+        }).error(function (xhr, error_mess) {
+            console.log('Произошла ошибка');
+            console.log(xhr.responseText);
+        }).done(function(data) {
+            $("#author_header").html(data["name"]);
+            $("#author_info_text").html(data["bio"]);
+            $("#author_img").attr('src',data['img_url']);
+            $("#filter_idx").attr('value', idx);
+            $('#author_info').toggle();
+        });
+    });
+    </script>
+    </div>
+{% endblock %}

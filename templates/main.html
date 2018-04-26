@@ -1,117 +1,119 @@
 {% extends "layout.html" %}
 {% block body %}
-	<!-- <div class='box' style="right: 20px; top:20px;"></div> -->
-	<div class='box' style="right: 20px; bottom:20px;"></div>
-	<h1>Определение авторства художественного текста </h1>
-    <div id="predict_box" style="display: none; position: absolute; right: 100px; top: 40px;">
-        <h2 style="text-align: center"> Результаты:</h2>
-        <table id="pred_table">
-            <tr>
-                <td class="pred_cell" id="a1">
-                    <p class="portrait_text"  id="a1_prob"></p>
-                    <img class="portrait" id="a1_img" >
-                    <p class="portrait_text" id="a1_text"></p>
-                </td>
-                <td class="pred_cell" id="a2">
-                    <p class="portrait_text"  id="a2_prob"></p>
-                    <img class="portrait" id="a2_img" >
-                    <p class="portrait_text" id="a2_text"></p>
-                </td>
+    <div class="align-container" style="text-align: center">
+                <div id="predict_box" style="display: none; text-align: center;">
+                <h2 style="text-align: center"> Результаты:</h2>
+                <table id="pred_table">
+                    <tr>
+                        <td class="pred_cell" id="a1">
+                            <p class="portrait_text"  id="a1_prob"></p>
+                            <img class="portrait" id="a1_img" >
+                            <p class="portrait_text" id="a1_text"></p>
+                        </td>
+                        <td class="pred_cell" id="a2">
+                            <p class="portrait_text"  id="a2_prob"></p>
+                            <img class="portrait" id="a2_img" >
+                            <p class="portrait_text" id="a2_text"></p>
+                        </td>
 
-                <td class="pred_cell" id="a3">
-                    <p class="portrait_text"  id="a3_prob"></p>
-                    <img class="portrait" id="a3_img" >
-                    <p class="portrait_text" id="a3_text"></p>
-                </td>
+                        <td class="pred_cell" id="a3">
+                            <p class="portrait_text"  id="a3_prob"></p>
+                            <img class="portrait" id="a3_img" >
+                            <p class="portrait_text" id="a3_text"></p>
+                        </td>
 
-                <td class="pred_cell" id="a4">
-                    <p class="portrait_text"  id="a4_prob"></p>
-                    <img class="portrait" id="a4_img" >
-                    <p class="portrait_text" id="a4_text"></p>
-                </td>
-                <td class="pred_cell" id="a5">
-                    <p class="portrait_text"  id="a5_prob"></p>
-                    <img class="portrait" id="a5_img" >
-                    <p class="portrait_text"  id="a5_text"></p>
+                        <td class="pred_cell" id="a4">
+                            <p class="portrait_text"  id="a4_prob"></p>
+                            <img class="portrait" id="a4_img" >
+                            <p class="portrait_text" id="a4_text"></p>
+                        </td>
+                        <td class="pred_cell" id="a5">
+                            <p class="portrait_text"  id="a5_prob"></p>
+                            <img class="portrait" id="a5_img" >
+                            <p class="portrait_text"  id="a5_text"></p>
 
-                </td>
-            </tr>
-        </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        <div class="inner-block">
 
-    </div>
+            <div style="width: 100%; text-align: center;">
+                    <form id="analyze_form" method=post enctype=multipart/form-data>
+                        <h2>Введите текст произведения</h2>
+                        <p>Введите текст в поле или выберите файл с произведением</p>
+                        <textarea id="textar" form="analyze_form" name="text" placeholder="Введите отрывок произведения" ></textarea>
+                        <p>Укажите файл с произведением</p>
+                        <p><input id="inputfile" type="file" name="file"><input   type="button" id="load_btn" value="Загрузить из файла" ></p>
+                        <p><input type=submit  formaction="/submit/start"  value="Запуск анализа" ></p>
+                    </form>
+                    <script>
+                        $("#load_btn").click(function(e) {
 
-	<table>
-		<tr>
-            <td class="layout_td">
-                <form id="analyze_form" method=post enctype=multipart/form-data>
-                    <p>Введите текст в поле или выберите файл с произведением</p>
-                    <textarea id="textar" form="analyze_form" name="text" placeholder="Введите отрывок произведения" style="width: 700px; height: 400px; resize: none;"></textarea>
-                    <p>Укажите файл с произведением</p>
-                    <p><input id="inputfile" type="file" name="file"><input   type="button" id="load_btn" value="Загрузить из файла" ></p>
-                    <p><input type=submit  formaction="/submit/start"  value="Запуск анализа" ></p>
-                </form>
-                <script>
-                    $("#load_btn").click(function(e) {
-
-                        var file = document.getElementById("inputfile").files[0];
-                        var reader = new FileReader();
-                        reader.onload = function (e) {
-                            var textArea = document.getElementById("textar");
-                            textArea.value = e.target.result;
-                        };
-                        reader.readAsText(file);
-                    });
-                </script>
-                <script>
-
-                    $("#analyze_form").on( "submit", function( event ) {
-                        event.preventDefault();
-                        //var request_data = $('#textar').val();
-                        var request_data =  JSON.stringify({"text": $('#textar').val()});
-                        $("#predict_box").hide();
-                        $.ajax({
-                            type: "POST",
-                            url: "/submit",
-                            data: request_data,
-                           contentType:"application/json; charset=utf-8",
-                           dataType:"json",
-                        }).error(function (xhr, error_mess) {
-                            console.log('Произошла ошибка');
-                            console.log(xhr.responseText);
-                        }).done(function(data) {
-                            alert('Анализ завершён!');
-                            $("#predict_box").toggle();
-                            var i;
-                            for (i = 1; i <= 5; i++) {
-                                $("#a"+i+"_text").html(data['author']);
-                                $("#a"+i+"_prob").html(data['prob']);
-                                $("#a"+i+"_img").attr("src", data['img_url']);
-
-                            }
-
+                            var file = document.getElementById("inputfile").files[0];
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                var textArea = document.getElementById("textar");
+                                textArea.value = e.target.result;
+                            };
+                            reader.readAsText(file);
                         });
-                    });
-                </script>
-            </td>
-			<td class="layout_td">
-				<hr>
-				<p>Добавить произведение в базу</p>
-				<p>
-					Выбрать существующего автора:
-					<select style='width: 150px;'>
-						<option default>Лев Толстой</option>
-						<option >Станислав Лем</option>
-						<option >...</option>
-					</select>
-				</p>
-				<p>Добавить нового: <input type="text" style="width:250px" placeholder="Введите полное имя автора"></p>
-				<p><input type="button" name="Kek" value="Добавить произведение"></p>
-			</td>
-		</tr>
-	</table>
+                    </script>
+                    <script>
+                        $("#analyze_form").on( "submit", function( event ) {
+                            event.preventDefault();
+                            //var request_data = $('#textar').val();
+                            var request_data =  JSON.stringify({"text": $('#textar').val()});
+                            $("#predict_box").hide();
+                            $.ajax({
+                                type: "POST",
+                                url: "/submit",
+                                data: request_data,
+                               contentType:"application/json; charset=utf-8",
+                               dataType:"json",
+                            }).error(function (xhr, error_mess) {
+                                console.log('Произошла ошибка');
+                                console.log(xhr.responseText);
+                            }).done(function(data) {
+                                alert('Анализ завершён!');
+                                $("#predict_box").attr('style','display: inline-block');
+                                for (var i = 1; i <= 5; i++) {
+                                    $("#a"+i+"_text").html(data['author']);
+                                    $("#a"+i+"_prob").html(data['prob']);
+                                    $("#a"+i+"_img").attr("src", data['img_url']);
+                                }
 
-	<p><input type="button" name="Kek" value="Список авторов"> <input type="button" name="Kek" value="Список произведений"></p>
-
+                            });
+                        });
+                    </script>
+                <div class='tab' style="display:inline-block; width: 50%;">
+                    <p>Добавить произведение в базу</p>
+                    <p>Название: <input class="input_field" id="title_input" type="text"  placeholder="Введите название"></p>
+                    <p>Автор: <input class="input_field" id="author_input" type="text" placeholder="Начните вводить имя автора"></p>
+                    <p><input type="button" id="add_comp_btn" value="Добавить произведение"></p>
+                    <script>
+                            $("#add_comp_btn").click(function(e) {
+                            var request_data =  JSON.stringify({"text": $('#textar').val(),
+                                                                "title": $('#title_input').val(),
+                                                                "author_name": $("#author_input").val()});
+                            $.ajax({
+                                type: "POST",
+                                url: "/add_comp",
+                                data: request_data,
+                               contentType:"application/json; charset=utf-8",
+                               dataType:"json"
+                            }).error(function (xhr, error_mess) {
+                                console.log('Произошла ошибка');
+                                console.log(xhr.responseText);
+                            }).done(function(data) {
+                                alert('Успешно!');
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 

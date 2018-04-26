@@ -4,14 +4,21 @@
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/author_info.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 	<style>
+        html
+        {
+            font-family: 'Open Sans', sans-serif;
+            padding: 30px;
+            position: relative;
+        }
 		body {
 				background-color: #fff;
 				/*background: linear-gradient(to top, #f0f0f0, #fff);*/
+
 			}
 		textarea { padding: 10px; }
 		/*h1   {color: blue;}*/
@@ -28,10 +35,80 @@
 		input { padding: 2px; }
 		input[type=text] { padding: 5px; }
 		input[type=button] { padding: 7px; }
+
+        .tab
+        {
+            background-color: #f1f1f1;
+            font-size: 12pt;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .align-container
+        {
+            padding: 20px;
+{#            background-color: red;#}
+            text-align: center;
+        }
+        .inner-block{
+            display: inline-block;
+            padding: 20px;
+            width: 80%;
+            background-color: #fafafa;
+        }
+        #pred_table
+        {
+            width: 1000px;
+            height:175px;
+            padding: 20px;
+        }
+        .pred_cell
+        {
+            width: 150px;
+            height:150px;
+            padding: 0px 0px 0px 15px;
+        }
+
+        .portrait
+        {
+            object-fit: cover;
+            border-radius: 100%;
+            width: 150px;
+            height: 150px;
+            padding: 0px;
+        }
+
+        .portrait_text
+        {
+            text-align: center;
+        }
+        .input_field
+        {
+            width: 250px;
+        }
+        @media only screen and (max-width: 600px) {
+            .input_field
+            {
+                width: 80%;
+            }
+        }
+        textarea
+        {
+            width: 700px;
+            height: 400px;
+            resize: none;
+        }
+        @media only screen and (max-width: 600px) {
+            textarea
+            {
+                width: 100%;
+                height: 80%;
+            }
+        }
+
+
 	</style>
-
-
 </head>
+
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
@@ -41,4 +118,23 @@
     </ul>
   {% endif %}
 {% endwith %}
-{% block body %}{% endblock %}
+
+<body>
+    <div class='box' style="right: 20px; bottom:20px;"></div>
+    <h1><a href="/" style=" color:inherit; text-decoration: none;"><span>▧</span> Система определения авторства художественного текста</a> </h1>
+
+    <p>
+        <a href="/index/author/1">Список известных авторов</a>
+        <span>|</span>
+        <a href="/index/composition/1">Список известных произведений</a>
+{#        <form>#}
+{#            <input type="submit" formaction="/index/author/1" value="Список известных авторов">#}
+{#            <input type="submit" formaction="/index/composition/1" value="Список известных произведений">#}
+{#        </form>#}
+
+    </p>
+    {% block body %}
+    {% endblock %}
+    {% include 'author_info.html' %}
+{#    {% include 'text_info.html' %}#}
+</body>

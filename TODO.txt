@@ -1,0 +1,12 @@
+Похабная структура проекта. За такое бьют палкой по рукам.
+
+#TODO 1
+Поправить либо как здесь, используя паттерн "Application Factories":
+http://flask.pocoo.org/docs/0.12/patterns/appfactories/
+
+либо как тут Dependency Injection:
+https://stackoverflow.com/questions/5748946/pythonic-way-to-resolve-circular-import-statements
+
+
+либо юзать blueprints от Flask(читать книжки):
+...

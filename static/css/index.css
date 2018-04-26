@@ -1,8 +1,4 @@
-    html
-{
-    font-family: 'Open Sans', sans-serif;
-    padding: 25px 0px 0px 75px;
-}
+
 .layout_td
 {
     padding: 2px;
@@ -44,28 +40,3 @@ input
     border-color: #52c5be00;
 }
 
-#pred_table
-{
-    width: 750px;
-    height:150px;
-}
-.pred_cell
-{
-    width: 125px;
-    height:125px;
-    padding: 0px 0px 0px 15px;
-}
-
-.portrait
-{
-    object-fit: cover;
-    border-radius: 100%;
-    width: 125px;
-    height: 125px;
-    padding: 0px;
-}
-
-.portrait_text
-{
-    text-align: center;
-}

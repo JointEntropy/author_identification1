@@ -1,0 +1,36 @@
+
+{% extends "modal_template.html" %}
+
+{% block modal_id%}author_info{% endblock %}
+
+{% block header %}
+    <h2 id="author_info_header">Биография</h2>
+
+{% endblock %}
+
+{% block body %}
+    <table style="width: 100%;">
+        <p>
+            <td style="width: 60%;">
+                <p class="longtext" id="author_info_text"></p>
+            </td>
+            <td>
+                <img id="author_img" class="portrait" style="width:300px; height:300px;">
+                <h3 id="author_header"></h3>
+            </td>
+
+        </tr>
+    </table>
+    <hr>
+    <form action="/index/composition/1" type="post">
+            <input type="hidden" name="filter_col" value="author">
+            <input type="hidden" id='filter_idx'  name="filter_idx">
+         <input type="submit" value="Произведения автора">
+    </form>
+    <script>$("#filter_idx").attr('value', $("#author_info").attr('name'));</script>
+
+
+{% endblock %}
+
+{% block footer%}
+{% endblock %}
