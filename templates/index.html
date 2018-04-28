@@ -3,17 +3,22 @@
 {% block body %}
     <style>
             ul {
+                width: 100%;
                 list-style-type: none;
                 margin: 0;
                 padding: 0;
-                width: 100%;
-                background-color: #f1f1f1;
-            }
 
-            li a {
+            }
+            li
+            {
                 display: block;
+            }
+            li a {
+                background-color: #f1f1f1;
+                display: inline-block;
                 color: #000;
                 padding: 8px 16px;
+                width: 95%;
                 text-decoration: none;
             }
 
@@ -22,17 +27,26 @@
                 background-color: #555;
                 color: white;
             }
+
     </style>
     <h2>{{ header}}</h2>
     <ul id="list_modal_select">
     {% for entity in entities%}
-        <li>
+        <li class="litem">
+
             <a class='item' {{ "href=/comp/"+entity.id|string if entity_name=="composition"}}  id="{{ entity.id }}">
                 {{ entity.name if entity.name else  entity.title}}
             </a>
+
+
         </li>
     {% endfor %}
     </ul>
+    </ul>
+
+
+
+
     <p>
     {% if page_id > 1 %}
         <a href="/index/{{entity_name}}/{{ 1 }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
@@ -43,8 +57,10 @@
            Предыдущая страница
         </a>
     {% endif %}
-    |
-    {% if page_id <pages-1 %}
+    {% if 1<page_id<pages %}
+        |
+    {% endif %}
+    {% if page_id <pages %}
         <a href="/index/{{entity_name}}/{{ page_id+1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
            Следующая страница
         </a>

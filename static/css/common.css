@@ -1,0 +1,135 @@
+html
+{
+    font-family: 'Open Sans', sans-serif;
+    padding: 30px;
+    position: relative;
+    min-height: 100%;
+}
+@media only screen and (max-width: 600px) {
+    html
+    {
+        padding:10px;
+    }
+}
+body {
+        background-color: #fff;
+    }
+textarea { padding: 10px; }
+/*h1   {color: blue;}*/
+p    {color: #111;}
+
+html { font-family: 'Open Sans', sans-serif; padding: 40px;}
+
+td {  padding-top: 20px; padding-left: 50px; padding-bottom: 20px; padding-right: 30px; border-radius: 4px;}
+
+.box { position: absolute;
+        color: black;
+        background-color: black;
+        width: 15px;
+        height: 15px;
+        border-radius: 2px;}
+    hr{ background-color: #444; }
+input { padding: 2px; }
+input[type=text] { padding: 5px; }
+input[type=button] { padding: 7px; }
+
+.tab
+{
+    background-color: #f1f1f1;
+    font-size: 12pt;
+    padding: 5px;
+    border-radius: 5px;
+    display:inline-block;
+    width: 50%;
+}
+@media only screen and (max-width: 600px) {
+    .tab
+    {
+        width: 100%;
+    }
+}
+.align-container
+{
+    padding: 20px;
+    text-align: center;
+}
+.inner-block{
+    display: inline-block;
+    padding: 20px;
+    width: 60%;
+    background-color: #fafafa;
+}
+
+@media only screen and (max-width: 600px) {
+    .inner-block
+    {
+        padding: 10px;
+        width: 100%;
+    }
+}
+
+#pred_table
+{
+    width: 1000px;
+    height:175px;
+    padding: 20px;
+}
+.pred_cell
+{
+    width: 150px;
+    height:150px;
+    padding: 0px 0px 0px 15px;
+}
+
+.portrait
+{
+    object-fit: cover;
+    border-radius: 100%;
+    width: 150px;
+    height: 150px;
+    padding: 0px;
+}
+
+.portrait_text
+{
+    text-align: center;
+}
+.input_field
+{
+    width: 250px;
+}
+textarea
+{
+    width: 80%;
+    height: 400px;
+    resize: none;
+}
+@media only screen and (max-width: 600px) {
+    #pred_table
+    {
+        width: 100%;
+    }
+    .pred_cell
+    {
+        width: 20%;
+    }
+    .portrait
+    {
+        width: 20%;
+    }
+    .input_field
+    {
+        width: 60%;
+    }
+    textarea
+    {
+        width: 90%;
+        height: 200px;
+    }
+}
+.overflow-text{
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

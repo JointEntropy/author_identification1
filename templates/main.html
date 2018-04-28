@@ -8,29 +8,29 @@
                         <td class="pred_cell" id="a1">
                             <p class="portrait_text"  id="a1_prob"></p>
                             <img class="portrait" id="a1_img" >
-                            <p class="portrait_text" id="a1_text"></p>
+                            <p class="portrait_text overflow-text" id="a1_text"></p>
                         </td>
                         <td class="pred_cell" id="a2">
                             <p class="portrait_text"  id="a2_prob"></p>
                             <img class="portrait" id="a2_img" >
-                            <p class="portrait_text" id="a2_text"></p>
+                            <p class="portrait_text overflow-text" id="a2_text"></p>
                         </td>
 
                         <td class="pred_cell" id="a3">
                             <p class="portrait_text"  id="a3_prob"></p>
                             <img class="portrait" id="a3_img" >
-                            <p class="portrait_text" id="a3_text"></p>
+                            <p class="portrait_text overflow-text" id="a3_text"></p>
                         </td>
 
                         <td class="pred_cell" id="a4">
                             <p class="portrait_text"  id="a4_prob"></p>
                             <img class="portrait" id="a4_img" >
-                            <p class="portrait_text" id="a4_text"></p>
+                            <p class="portrait_text overflow-text" id="a4_text"></p>
                         </td>
                         <td class="pred_cell" id="a5">
                             <p class="portrait_text"  id="a5_prob"></p>
                             <img class="portrait" id="a5_img" >
-                            <p class="portrait_text"  id="a5_text"></p>
+                            <p class="portrait_text overflow-text"  id="a5_text"></p>
 
                         </td>
                     </tr>
@@ -73,20 +73,35 @@
                                dataType:"json",
                             }).error(function (xhr, error_mess) {
                                 console.log('Произошла ошибка');
+                                alert('Ошибка ввода');
                                 console.log(xhr.responseText);
                             }).done(function(data) {
-                                alert('Анализ завершён!');
-                                $("#predict_box").attr('style','display: inline-block');
-                                for (var i = 1; i <= 5; i++) {
-                                    $("#a"+i+"_text").html(data['author']);
-                                    $("#a"+i+"_prob").html(data['prob']);
-                                    $("#a"+i+"_img").attr("src", data['img_url']);
-                                }
+                                var c = data;
+                                $.each(data, function (i, item) {
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "/author/"+c[i]['id'],
+                                    }).error(function (xhr, error_mess) {
+                                        console.log(xhr.responseText);
+                                    }).done(function(inner_data) {
+                                            var prefix = "#a"+(i+1);
+                                            $(prefix+"_text").html(inner_data["name"]);
+                                            $(prefix+"_prob").html(item['prob']);
+                                            var img_url = inner_data['img_url'];
+                                            if ( img_url == null)
+                                                img_url = "{{ url_for('static',filename='img/author_placeholder.jpg') }}";
+                                            $(prefix+"_img").attr("src", img_url);
 
+                                    });
+                                });
+                                $("#predict_box").css({
+                                    opacity: 0,
+                                    display: 'inline-block'
+                                }).animate({opacity:1},2000);
                             });
                         });
                     </script>
-                <div class='tab' style="display:inline-block; width: 50%;">
+                <div class='tab'>
                     <p>Добавить произведение в базу</p>
                     <p>Название: <input class="input_field" id="title_input" type="text"  placeholder="Введите название"></p>
                     <p>Автор: <input class="input_field" id="author_input" type="text" placeholder="Начните вводить имя автора"></p>
@@ -104,6 +119,7 @@
                                dataType:"json"
                             }).error(function (xhr, error_mess) {
                                 console.log('Произошла ошибка');
+                                alert('Ошибка ввода');
                                 console.log(xhr.responseText);
                             }).done(function(data) {
                                 alert('Успешно!');

@@ -7,6 +7,9 @@ db_path = 'sqlite:///data/test.db'
 modal_package_path = '/home/grigory/PycharmProjects/wikisource/predict_models/WordLSTM'
 
 
+
+db = SQLAlchemy()
+
 def create_app():
     app = Flask(__name__.split('.')[0])
     app.secret_key = 'Master Kenobi!'
@@ -20,5 +23,6 @@ def register_extensions(app):
     db.init_app(app)
 
 
-db = SQLAlchemy()
+
 app = create_app()
+pass

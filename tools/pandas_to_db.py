@@ -25,10 +25,10 @@ def prepare_author_table(data):
     mapping = dict(((name, idx) for idx, name in enumerate(unique_authors)))
 
     df = pd.DataFrame({
-        'name': unique_authors}, columns=['name', 'bio', 'img_url', 'class_label'])
-    df['bio'] = '...'
-    df['img_url'] = '...'
-    df['class_label'] = -1
+        'name': unique_authors}, columns=['name', 'bio', 'img_url',]) #'class_label'])
+    # df['bio'] = '...'
+    # df['img_url'] = '...'
+    # df['class_label'] = -1
     return df, mapping
 
 

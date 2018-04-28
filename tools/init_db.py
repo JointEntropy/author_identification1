@@ -1,5 +1,5 @@
 # http://flask-sqlalchemy.pocoo.org/2.3/quickstart/
-from models import db, User, Composition, Author
+from backend import db, User, Composition, Author
 import pickle as pkl
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine

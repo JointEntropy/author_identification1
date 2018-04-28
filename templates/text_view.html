@@ -2,16 +2,32 @@
 {% block body %}
     <div style=" text-align: center; width: 100%;">
     {% if editable %}
-        <h1>{{ title.strip("<>") }}</h1>
-        <h3 id="author"> Автор: {{ author_name }}</h3>
+        <style>
+            .edit{
+            }
+            .edit-span
+            {
+                font-size: 15pt;
+                display: none;
+            }
+            h3:hover{
+                text-decoration: underline;
+            }
+
+        </style>
+        <h1 class="field">{{ title.strip("<>") }} <span id='title' class='edit-span'>✎</span></h1>
+        <h3 id="author_header">Автор: {{ author_name }}</h3>
         <div style="text-align: justify; white-space: pre-wrap; width: 75%; overflow: scroll; max-height: 600px; display: inline-block;">
             {{ text|string }}
         </div>
+
+
     {% else%}
 
     {% endif %}
+
     <script>
-    $("#author").click(function(e) {
+    $("#author_header").click(function(e) {
         event.preventDefault();
         var idx = {{ author }};
         $.ajax({
@@ -23,7 +39,10 @@
         }).done(function(data) {
             $("#author_header").html(data["name"]);
             $("#author_info_text").html(data["bio"]);
-            $("#author_img").attr('src',data['img_url']);
+            var img_url = data['img_url'];
+            if (img_url == null)
+                img_url = "{{ url_for('static',filename='img/author_placeholder.jpg') }}";
+            $("#author_img").attr('src',img_url);
             $("#filter_idx").attr('value', idx);
             $('#author_info').toggle();
         });

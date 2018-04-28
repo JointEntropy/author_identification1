@@ -7,13 +7,15 @@ from werkzeug.utils import secure_filename
 import json
 from backend import MBackEnd
 from tools.file_filter import allowed_file
-from models import User, Author, Composition
+
 from sqlalchemy.orm import load_only
 from tools.decoders import  Decoder
-from predict_models import BWordCharLSTM, WordLSTM, PredictModel
+from predict_models.NetsModels import BWordCharLSTM, WordLSTM, NetsModel
+from predict_models.LinearModels import LinearModel, LogisticRegression
 from gvars import modal_package_path
-
+from backend import Author, Composition
 from tools.init_db import  restore_after_flush
+import numpy as np
 
 
 @app.route('/', methods=['GET'])
@@ -37,6 +39,16 @@ def get_authors():
     return response
 
 
+# # get request for delete amazing
+# @app.route('/delete', methods=['GET'])
+# def delete():
+#     entity_name = request.args.get('entity_name', None)
+#     idx = request.args.get('id', None)
+#     if entity_name=='author':
+#         be.del_author(idx)
+#     elif entity_name=='comp':
+#         be.del_comp(idx)
+
 @app.route('/add_comp', methods=['POST'])
 def add_composition():
     try:
@@ -46,6 +58,8 @@ def add_composition():
             'text': request_data['text'],
             'title':  request_data['text']
         }
+        if any(not bool(val) for key, val in composition.items()):
+            raise ValueError
         be.add_composition(composition)
     except ValueError:
         return abort(400)
@@ -55,6 +69,7 @@ def add_composition():
     # response.headers['Content-Disposition'] = "inline; filename=" + filename
     return response
 
+
 @app.route('/submit', methods=['POST'])
 def submit():
     try:
@@ -63,13 +78,8 @@ def submit():
         result = be.predict(text)
     except ValueError:
         return abort(400)
-
-    result = {"author": "Ленин",
-              "prob": 0.93 ,
-              "img_url": "https://s11.stc.all.kpcdn.net/share/i/12/10034942/inx960x640.jpg"}
     result = json.dumps(result, indent=3)
     response = Response(result, mimetype='text/json')
-    # response.headers['Content-Disposition'] = "inline; filename=" + filename
     return response
 
 
@@ -86,6 +96,7 @@ def index(entity_name, page_id):
     MAX_ITEMS_PER_PAGE = 15
     page_id = int(page_id)
 
+
     if entity_name == 'author' and str(filter_col) == 'None':
         paginator = Author.query.options(load_only('name', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
         entities = paginator.items
@@ -101,6 +112,7 @@ def index(entity_name, page_id):
                                                                       MAX_ITEMS_PER_PAGE, False)
         entities = paginator.items
         header='Произведения'
+
     return render_template('index.html', header=header, entity_name=entity_name,
                            entities=entities,
                            page_id=page_id,
@@ -146,15 +158,31 @@ def upload_file():
 
 
 if __name__ == '__main__':
-    restore_after_flush()
+    # restore_after_flush()
 
-    db = SQLAlchemy()
+    # db = SQLAlchemy()
+    from gvars import db
+
     decoder = Decoder(None)
-    inner_model = WordLSTM(modal_package_path) #BWordCharLSTM(modal_package_path)
-    model = PredictModel(inner_model)
-    be = MBackEnd(model, db, decoder)
 
-    # app.config['DEBUG'] = True
+    # сеточки
+    # inner_model = WordLSTM()  # BWordCharLSTM()
+    # model = NetsModel(inner_model, modal_package_path)
+
+    # линейные модели
+    inner_model = LogisticRegression()
+    model = LinearModel(inner_model)
+    be = MBackEnd(model, db, decoder)
+    app.config['DEBUG'] = True
     # сейчас app импортится из вьюхи...
     app.run(host='0.0.0.0')
+
+
+
+
+
+
+
+
+
 
