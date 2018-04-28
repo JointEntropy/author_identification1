@@ -1,6 +1,7 @@
 # http://flask-sqlalchemy.pocoo.org/2.3/quickstart/
-from backend import db, User, Composition, Author
+from models import db, User, Composition, Author
 import pickle as pkl
+from gvars import app
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import sqlalchemy as sa
@@ -9,15 +10,17 @@ import pandas as pd
 
 
 def restore_after_flush():
-    try:
-        db.session.commit()
-    except SQLAlchemy.exc as e:
-        db.session.rollback()
+    with app.app_context():
+        try:
+            db.session.commit()
+        except SQLAlchemy.exc as e:
+            db.session.rollback()
 
 
 def db_create():
-    db.create_all()
-    db.session.commit()
+    with app.app_context():
+        db.create_all()
+        db.session.commit()
 
 
 if __name__ == '__main__':

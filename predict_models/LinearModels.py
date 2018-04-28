@@ -3,6 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from .utils import Normalizer
+import numpy as np
 
 
 class LinearModel(PredictModel):
@@ -21,7 +22,8 @@ class LinearModel(PredictModel):
         self.vectorizer.fit(texts)
 
     def predict(self, X):
-        return self.model.predict_proba(X)[0]
+        predictions = self.model.predict_proba(X)
+        return list(enumerate(predictions[0]))
 
     def predict_features(self, text):
         if self.normalize:
@@ -33,6 +35,7 @@ class LinearModel(PredictModel):
     def prepare_features(self, texts):
         if self.normalize:
             texts = self._normalizer.normalize(texts)
-        return self.vectorizer.transform(texts)
+        for f in self.vectorizer.transform(texts):
+            yield np.array(f.todense())
 
 

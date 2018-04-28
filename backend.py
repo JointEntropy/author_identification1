@@ -2,28 +2,35 @@ from sqlalchemy.orm import load_only
 import pickle as pkl
 import numpy as np
 from models import Author, Composition, db
-from predict_models.LinearModels import LinearModel, LogisticRegression
-from tools.decoders import Decoder
 
 
 class MBackEnd:
-    def __init__(self, model,  decoder, generate_features=False):
+    def __init__(self, model,  decoder):
         self.predict_model = model
         self.decoder = decoder
         self.class_labels_mapping = None
 
-        self.first_call = True
+    def on_start(self,
+                 generate_features=False,
+                 fit_extractor=False,
+                 fit_predict_model=True):
+
+        # генерим фичи
+        compositions_raw = Composition.query.options(load_only('text','features')).all()
+        texts = [c.text for c in compositions_raw]
+        if generate_features or fit_extractor:
+            self.predict_model.fit_extractor(texts)
         if generate_features:
-            pass
-            # пробегаем по всем записям и генерим для них фичи
-            # этот блок под вопросом, ибо в любом случае пока непонятно когда иницилизируется сессия для бд.
-            # self.predict_model.prepare_features(...)
+            texts_features = self.predict_model.prepare_features(texts)
+            for c, f in zip(compositions_raw, texts_features):
+                c.features = f
+            db.session.commit()
+        if fit_predict_model:
+            self.fit_predict_model()
 
     def fit_predict_model(self):
         tuples = db.session.query(Composition).options(load_only('features', 'author_id')).all()
-        features, targets = [item.features for item in tuples], [item.author_id for item in tuples]
-
-        features = [np.random.random(size=(5,5)).ravel() for f in features]
+        features, targets = [item.features[0] for item in tuples], [item.author_id for item in tuples]
 
         # собираем уникальные id'шники с авторов и готовим отображения из предсказанного класса в id автора из базы.
         unique_author_ids = db.session.query(Author.id).all()
@@ -42,19 +49,9 @@ class MBackEnd:
         :param X: сырой текст запроса.
         :return: упорядоченный по убываний список author_id и prob.
         """
-        if self.first_call:
-            compositions_raw = Composition.query.options(load_only('text','features')).all()
-            texts = [c.text for c in compositions_raw]
-            self.predict_model.fit_extractor(texts)
-            texts_features = self.predict_model.prepare_features(texts)
-            for c, f in zip(compositions_raw, texts_features):
-                c.features = f.todense()
-            db.session.commit()
-            self.fit_predict_model()
-            self.first_call = False
 
         # декодируем
-        text = self.decoder.process(text),
+        text = self.decoder.process(text)
         # предсказываем фичи
         features = self.predict_model.predict_features(text)
         # предсказываем метки классов
@@ -148,8 +145,16 @@ class MBackEnd:
             return response
 
 
+
+from tools.decoders import Decoder
+from predict_models.LinearModels import LinearModel, LogisticRegression
+from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
+from gvars import modal_package_path
+
 decoder = Decoder(None)
 inner_model = LogisticRegression()
 pmodel = LinearModel(inner_model)
+# inner_model = WordLSTM()
+# pmodel = NetsModel(inner_model, modal_package_path)
 be = MBackEnd(pmodel, decoder)
 

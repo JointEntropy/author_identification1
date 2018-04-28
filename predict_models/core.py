@@ -18,16 +18,17 @@ class PredictModel:
 
     def predict(self, x):
         """
-        Принимает на вход вектор фичей и предсказывает вероятности по классам.
+        Принимает на вход одномерный вектор фичей и предсказывает вероятности по классам.
         Работает только после вызова fit.
         :param X:
-        :return:
+        :return: список кортежей номер_класс - вероятность
         """
         raise NotImplementedError('Predict not implemented!')
 
-    def predict_features(self, texts):
+    def predict_features(self, text):
         """
         Готовит фичи для обучения классификатора.
+        Принимает строко один текст без обёрток.
         Должен работать и без преварительного fit.
         :param text:
         :return:

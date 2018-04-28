@@ -7,6 +7,7 @@ from backend import be, Author, Composition
 from flask import flash
 from flask import redirect
 
+
 @app.route('/', methods=['GET'])
 def debug_page():
     """
@@ -75,9 +76,8 @@ def submit():
 
 @app.route('/comp/<comp_id>')
 def composition(comp_id):
-    flash('О май гад')
-    return redirect('index/composition/1')
-
+    # flash('О май гад')
+    # return redirect('index/composition/1')
     composition = be.get_composition(comp_id)
     return render_template('text_view.html', editable=True, entity_name='author', **composition)
 
