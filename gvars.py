@@ -1,4 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 
 db_path = 'sqlite:///data/test.db'
@@ -6,9 +5,6 @@ db_path = 'sqlite:///data/test.db'
 #modal_package_path = '/home/grigory/PycharmProjects/wikisource/predict_models/BWordCharLSTM'
 modal_package_path = '/home/grigory/PycharmProjects/wikisource/predict_models/WordLSTM'
 
-
-
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__.split('.')[0])
@@ -20,6 +16,7 @@ def create_app():
 
 
 def register_extensions(app):
+    from models import db
     db.init_app(app)
 
 

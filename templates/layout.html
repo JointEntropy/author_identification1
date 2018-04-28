@@ -4,6 +4,7 @@
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/flashes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
@@ -15,7 +16,7 @@
   {% if messages %}
     <ul class=flashes>
     {% for message in messages %}
-      <li>{{ message }}</li>
+      <li class="flash">{{ message }}</li>
     {% endfor %}
     </ul>
   {% endif %}

@@ -1,10 +1,5 @@
-###############################  MODELS.py
-# http://flask-sqlalchemy.pocoo.org/2.3/quickstart/
-from datetime import datetime
-from flask.ext.sqlalchemy import SQLAlchemy
-from gvars import app
-
-db = SQLAlchemy(app)
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 
 
 class User(db.Model):
@@ -34,9 +29,9 @@ class Author(db.Model):
     name = db.Column(db.String(100), nullable=False)
     bio = db.Column(db.Text, nullable=True)
     img_url = db.Column(db.String(1000), nullable=True)
-    class_label = db.Column(db.Integer, nullable=True)
-
+    # class_label = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return '<Author %r>' % self.name
-##################################
+
+
