@@ -7,7 +7,7 @@ path_external_project = '/home/grigory/PycharmProjects/wikisource'
 
 sys.path.append(path_external_project)
 from utils import load_obj
-from dataset import split_sequence, preprocessing, split_long_texts,
+from dataset import split_sequence, preprocessing, split_long_texts
 from char_lstm_preprocess import filter_chars
 from extra_layers import AttentionWithContext
 from word_lstm_preprocess import Normalizer

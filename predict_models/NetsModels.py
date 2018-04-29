@@ -41,7 +41,7 @@ class NetsModel(PredictModel):
         texts, groups = self.fp_model.process_batch(texts)
         features = self.fp_model.predict(texts)
 
-        features_df = pd.DataFrame({'features': features,
+        features_df = pd.DataFrame({'features':  [list(f) for f in features],
                                     'groups': groups})
         average_features = features_df.groupby('groups')['features'].apply(list).apply(lambda x: np.mean(x, axis=0))
         for f in average_features:
@@ -98,12 +98,12 @@ class WordLSTM:
         return text_word
 
     def process_batch(self, texts):
-        texts_df = split_long_texts(texts, np.arange(texts.shape[0]), self.params['split_threshold'])
+
+        texts_df = split_long_texts(texts, np.arange(len(texts)), self.params['split_threshold'])
         filtered_data = filter_chars(texts_df['text'])
 
         nm = Normalizer(backend='mystem')
         texts_word = nm.normalize(filtered_data)
-
         contexts = self.tools['words_tokenizer'].texts_to_sequences(texts_word)
         texts_word = pad_sequences(contexts, maxlen=self.params['MAX_TEXT_WORDS'])
         return texts_word, texts_df.index.values
