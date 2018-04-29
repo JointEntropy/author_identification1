@@ -30,7 +30,7 @@ class MBackEnd:
 
     def fit_predict_model(self):
         tuples = db.session.query(Composition).options(load_only('features', 'author_id')).all()
-        features, targets = [item.features[0] for item in tuples], [item.author_id for item in tuples]
+        features, targets = [item.features for item in tuples], [item.author_id for item in tuples]
 
         # собираем уникальные id'шники с авторов и готовим отображения из предсказанного класса в id автора из базы.
         unique_author_ids = db.session.query(Author.id).all()

@@ -81,7 +81,7 @@ class WordLSTM:
         # нарезаем на куски, ибо кормить в сеть слишком большой не можем.
         split_threshold = self.params['split_threshold']
         if len(text) > split_threshold:
-            text_split = split_sequence(text, split_threshold)  # теперь index - номер произведения, и он дублируется
+            text_split = [''.join(text) for text in split_sequence(text, split_threshold) ] # теперь index - номер произведения, и он дублируется
         else:
             text_split = [text]
         text_split = pd.Series(text_split)
