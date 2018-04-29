@@ -152,9 +152,9 @@ from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
 from gvars import modal_package_path
 
 decoder = Decoder(None)
-inner_model = LogisticRegression()
-pmodel = LinearModel(inner_model)
-# inner_model = WordLSTM()
-# pmodel = NetsModel(inner_model, modal_package_path)
+# inner_model = LogisticRegression()
+# pmodel = LinearModel(inner_model)
+inner_model = WordLSTM()
+pmodel = NetsModel(inner_model, modal_package_path)
 be = MBackEnd(pmodel, decoder)
 

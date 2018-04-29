@@ -15,10 +15,11 @@ class NetsModel(PredictModel):
         self.fp_model.tools = load_obj(model_package + '/preprocess_tools')
         self.fp_model.params = load_json(model_package + '/params.json')
 
-        # model = load_model(model_package + '/model.h5',
-        #                    custom_objects={'AttentionWithContext': AttentionWithContext})
-        # self.fp_model.model = Model(inputs=model.input, outputs=model.layers[-2].output)
-        self.knn = KNeighborsClassifier(n_neighbors=5)
+        name = self.fp_model.params.get('model', 'model.h5')
+        model = load_model(model_package + '/' + name,
+                           custom_objects={'AttentionWithContext': AttentionWithContext})
+        self.fp_model.model = Model(inputs=model.input, outputs=model.layers[-1].input)
+        self.knn = KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
 
     def fit(self, X, y):
         self.knn.fit(X, y)
@@ -45,8 +46,6 @@ class NetsModel(PredictModel):
         average_features = features_df.groupby('groups')['features'].apply(list).apply(lambda x: np.mean(x, axis=0))
         for f in average_features:
             yield f
-        # for f in np.random.random(size=(len(texts), 5)):
-        #     yield f
 
 
 class BWordCharLSTM:
@@ -74,7 +73,7 @@ class BWordCharLSTM:
         return text_word, text_char
 
     def predict(self, X):
-        return self.model.predict(X, verbose=0)
+        return self.model.predict(X, verbose=1)
 
 
 class WordLSTM:
@@ -110,4 +109,4 @@ class WordLSTM:
         return texts_word, texts_df.index.values
 
     def predict(self, X):
-        return self.model.predict(X, verbose=0)
+        return self.model.predict(X, verbose=1)
