@@ -133,11 +133,6 @@ class MBackEnd:
             self.add_author({'name': author_name})
             author_id = db.session.query(Author.id).filter_by(name=author_name).scalar()
         c = Composition(title=title, text=text, author_id=author_id, features=features)
-
-
-        ### TODO здесь косяк с тем. что db импортирована криво и возникает несколько сессий.\
-        ### Так что при попытке добавления он пытается их пихнуть во все и вылазиет ошибка.
-        ### https: // stackoverflow.com / questions / 24291933 / sqlalchemy - object - already - attached - to - session
         db.session.add(c)
         db.session.commit()
         db.session.close()

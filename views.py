@@ -35,7 +35,7 @@ def delete():
     idx = request.form.get('id', None)
     if entity_name == 'author':
         be.del_author(idx)
-    elif entity_name == 'comp':
+    elif entity_name == 'composition':
         be.del_comp(idx)
     return  json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
@@ -88,7 +88,6 @@ def index(entity_name, page_id):
     filter_idx = request.args.get('filter_idx', None)
     MAX_ITEMS_PER_PAGE = 15
     page_id = int(page_id)
-
 
     if entity_name == 'author' and str(filter_col) == 'None':
         paginator = Author.query.options(load_only('name', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
