@@ -89,6 +89,18 @@ class MBackEnd:
         # запрос к ДБ на получение списка имён всех авторов
         return db.session.query(Author.name).all()  # оверкилл
 
+    def edit_author(self, idx, new_fields):
+        a = Author.query.get(idx)
+        for key, val in new_fields.items():
+            setattr(a, key, val)
+        db.session.commit()
+
+    def edit_composition(self, idx, new_fields):
+        c = Composition.query.get(idx)
+        for key, val in new_fields.items():
+            setattr(c, key, val)
+        db.session.commit()
+
     def get_compositions(self, author_id, page_idx):
         # запрос к ДБ на получения списка всех  известных произведений.
         a = Author.query.get(author_id)
@@ -152,9 +164,9 @@ from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
 from gvars import modal_package_path
 
 decoder = Decoder(None)
-# inner_model = LogisticRegression()
-# pmodel = LinearModel(inner_model)
-inner_model = WordLSTM()
-pmodel = NetsModel(inner_model, modal_package_path)
+inner_model = LogisticRegression()
+pmodel = LinearModel(inner_model)
+# inner_model = WordLSTM()
+# pmodel = NetsModel(inner_model, modal_package_path)
 be = MBackEnd(pmodel, decoder)
 

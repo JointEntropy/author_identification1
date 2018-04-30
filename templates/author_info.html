@@ -1,27 +1,40 @@
 
 {% extends "modal_template.html" %}
 
-{% block modal_id%}author_info{% endblock %}
+{% block modal_id%}modal_author_info{% endblock %}
 
 {% block header %}
-    <h2 id="author_info_header">Биография</h2>
-
+    <h2>Биография</h2>
 {% endblock %}
 
 {% block body %}
-    <table style="width: 100%;">
-        <p>
-            <td style="width: 60%;">
-                <p class="longtext edit field" id="author_info_text"></p>
-            </td>
-            <td>
-                <img id="author_img" class="portrait field edit" style="width:300px; height:300px;">
-                <h3 class="field"><div id="author_header" ></div ><span id='name' class='edit-span'>✎</span></h3>
+    <div class="form" name="authors">
+        <table style="width: 100%;">
+            <tr>
 
-            </td>
+                    <td style="width: 60%;">
+                        <div class="field" name="bio">
+                            <p class="longtext edit"  id="modal_author_info_text"></p>
+                            <span id='name' class='edit-span'>✎</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field" name="img_url">
+                            <img id="modal_author_img" class="portrait edit edit-img" style="width:300px; height:300px;">
+                        </div>
 
-        </tr>
-    </table>
+                        <div class="field" name="name">
+                            <h3 >
+                                <div class='edit' id="modal_author_header"></div >
+                                <span id='name' class='edit-span'>✎</span>
+                            </h3>
+                        </div>
+
+                    </td>
+
+            </tr>
+        </table>
+    </div>
     <hr>
     <form action="/index/composition/1" type="post">
             <input type="hidden" name="filter_col" value="author">
@@ -30,6 +43,20 @@
     </form>
     <script>$("#filter_idx").attr('value', $("#author_info").attr('name'));</script>
 
+    <script>
+        function draw_author(author)
+        {
+            $("#modal_author_header").html(author["name"]);
+            $("#modal_author_info_text").html(author["bio"]);
+            var img_url = author['img_url'];
+            if (img_url == null)
+                img_url = "{{ url_for('static',filename='img/author_placeholder.jpg') }}";
+            $("#modal_author_img").attr('src', img_url);
+            $("#filter_idx").attr('value', author['id']);
+            $(".form").attr('id', author['id']);
+            $('.modal').toggle();
+        }
+    </script>
 
 {% endblock %}
 

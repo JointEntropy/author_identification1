@@ -76,12 +76,27 @@
     min-height: 50px;
 }
 
-.longtext {
-    text-align: left;
-    font-size: 16pt;
+.longtext{
+    text-align: justify;
+    font-size: 14pt;
+    min-width:250px;
+    min-height: 250px;
+    padding: 15px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 .edit-span
 {
     font-size: 15pt;
     display: none;
+}
+.edit-img
+{
+
+}
+
+.edit-span:hover
+{
+    color:black;
+
 }

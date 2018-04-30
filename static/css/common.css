@@ -135,3 +135,13 @@ textarea
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.highlight
+{
+      background-color: rgba(196,196,256,0.25);
+}
+
+.highlight-red
+{
+      background-color: rgba(256,196,196,0.25);
+}

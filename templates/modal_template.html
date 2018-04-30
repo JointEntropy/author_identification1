@@ -1,8 +1,8 @@
 
-<div id="{% block modal_id %}{% endblock %}" class="modal modal-body">
+<div class="modal modal-body">
     <div class="modal-content">
         <div class="modal-header">
-            <span id="{{ self.modal_id()}}_close" class="close">&times;</span>
+            <span id="modal_close" class="close">&times;</span>
             {% block header %}
             {% endblock %}
         </div>
@@ -19,23 +19,13 @@
 </div>
 <script>
     // Get the modal
-    var {{self.modal_id()}} = document.getElementById("{{ self.modal_id()}}");
+    var modal = document.getElementsByClassName("modal")[0];
     // Get the <span> element that closes the modal
-    var {{self.modal_id()}}_span = document.getElementById("{{ self.modal_id()}}_close");
+    var modal_span = document.getElementById("modal_close");
     // When the user clicks the button, open the modal
 
     // When the user clicks on <span> (x), close the modal
-    {{self.modal_id()}}_span.onclick = function() {
-        {{self.modal_id()}}.style.display = "none";
+    modal_span.onclick = function() {
+        modal.style.display = "none";
     };
-    $('.edit, .edit-span').click(function (t) {
-        var field_name = this.id;
-        alert(field_name);
-    });
-    $(".field").hover(function (e) {
-        $(this).find(".edit-span").attr('style', 'display:inline');
-    },function (e) {
-        $(this).find(".edit-span").attr('style', 'display;none');
-    });
-
 </script>

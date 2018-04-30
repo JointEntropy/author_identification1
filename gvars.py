@@ -1,13 +1,14 @@
 from flask import Flask
 
-db_path = 'sqlite:///data/test.db'
+# db_path = 'sqlite:///data/test.db'
+db_path  = 'sqlite:////media/grigory/Data/DIPLOM_DATA/db/logreg_test.db'
 #modal_package_path = '/home/grigory/PycharmProjects/wikisource/predict_models/BWordCharLSTM'
 modal_package_path = '/home/grigory/PycharmProjects/wikisource/predict_models/WordLSTM'
 
 
 INIT_ON_START = False
-FIT_EXTRACTOR = True
-FIT_PREDICT_MODEL = True
+FIT_EXTRACTOR = False
+FIT_PREDICT_MODEL = False
 
 
 def create_app():

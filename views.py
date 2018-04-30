@@ -29,15 +29,15 @@ def get_authors():
     return response
 
 
-# # get request for delete amazing
-# @app.route('/delete', methods=['GET'])
-# def delete():
-#     entity_name = request.args.get('entity_name', None)
-#     idx = request.args.get('id', None)
-#     if entity_name=='author':
-#         be.del_author(idx)
-#     elif entity_name=='comp':
-#         be.del_comp(idx)
+@app.route('/delete', methods=['POST'])
+def delete():
+    entity_name = request.form.get('entity_name', None)
+    idx = request.form.get('id', None)
+    if entity_name == 'author':
+        be.del_author(idx)
+    elif entity_name == 'comp':
+        be.del_comp(idx)
+    return  json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
 @app.route('/add_comp', methods=['POST'])
 def add_composition():
@@ -121,6 +121,22 @@ def author_info(author_id):
         return Response(json.dumps(author), mimetype='text/json')
     else:
         return abort(400)
+
+
+@app.route('/edit_field/<entity_name>/<idx>', methods=['POST'])
+def edit_field(entity_name, idx):
+
+    field_name = request.form.get('field')
+    field_value = request.form.get('value')
+    if entity_name == 'authors':
+        be.edit_author(idx, {
+            field_name:  field_value
+        })
+    elif entity_name == 'comps':
+        be.edit_composition(idx,{
+            field_name: field_value
+        })
+    return  json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
 
 # @app.route('/', methods=['GET', 'POST'])

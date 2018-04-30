@@ -21,11 +21,14 @@
                 width: 95%;
                 text-decoration: none;
             }
-
             /* Change the link color on hover */
             li a:hover {
                 background-color: #555;
                 color: white;
+            }
+            .delete-span
+            {
+                display: none;
             }
 
     </style>
@@ -37,64 +40,42 @@
             <a class='item' {{ "href=/comp/"+entity.id|string if entity_name=="composition"}}  id="{{ entity.id }}">
                 {{ entity.name if entity.name else  entity.title}}
             </a>
-
-
+            <span class="delete-span">✖</span>
         </li>
     {% endfor %}
     </ul>
-    </ul>
-
-
-
-
     <p>
-    {% if page_id > 1 %}
-        <a href="/index/{{entity_name}}/{{ 1 }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
-            К первой
-        </a>
-        |
-        <a href="/index/{{entity_name}}/{{ page_id-1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
-           Предыдущая страница
-        </a>
-    {% endif %}
-    {% if 1<page_id<pages %}
-        |
-    {% endif %}
-    {% if page_id <pages %}
-        <a href="/index/{{entity_name}}/{{ page_id+1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
-           Следующая страница
-        </a>
-        |
-        <a href="/index/{{entity_name}}/{{ pages }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
-            К последней
-        </a>
-    {% endif %}
-
-
-
-
+        {% include 'paginator.html'%}
     </p>
     {%  if entity_name=="author" %}
         <script>
-        $(".item").click(function(e) {
-            event.preventDefault();
-                var idx = this.id;
-                $.ajax({
-                    type: "GET",
-                    url: "/{{ entity_name }}/"+idx,
-                }).error(function (xhr, error_mess) {
-                    console.log('Произошла ошибка');
-                    console.log(xhr.responseText);
-                }).done(function(data) {
-                    $("#author_header").html(data["name"]);
-                    $("#author_info_text").html(data["bio"]);
-                    $("#author_img").attr('src',data['img_url']);
-                    $("#filter_idx").attr('value', idx);
-                    $('#author_info').toggle();
+            $(".item").click(function(e) {
+                event.preventDefault();
+                get_author(this.id, function (author) {
+                        draw_author(author);
                 });
-
-        });
+            })
         </script>
     {% endif %}
-
+    {%  if entity_name=="composition" %}
+        <script>
+            $(".delete-span").click(function(e) {
+{#                event.preventDefault();#}
+                var item = $(this).closest('.litem').find('.item');
+                var id = item.attr('id');
+                delete_instance('comp', id, function () {
+                     item.remove();
+                 });
+             }).hover(function () {
+                    $(this).closest(".litem").find('.item').addClass('highlight-red');
+            }, function () {
+                    $(this).closest(".litem").find('.item').removeClass('highlight-red');
+            });
+            $('.litem').hover(function(e) {
+                    $(this).find(".delete-span").attr('style', 'display:inline-block;');
+                },function () {
+                    $(this).find(".delete-span").attr('style', 'display:none;');
+            });
+        </script>
+    {% endif %}
 {% endblock %}
