@@ -47,35 +47,33 @@
     <p>
         {% include 'paginator.html'%}
     </p>
-    {%  if entity_name=="author" %}
-        <script>
-            $(".item").click(function(e) {
-                event.preventDefault();
-                get_author(this.id, function (author) {
-                        draw_author(author);
+    <script>
+        {%  if entity_name=="author" %}
+
+                $(".item").click(function(e) {
+                    event.preventDefault();
+                    get_author(this.id, function (author) {
+                            draw_author(author);
+                    });
                 });
-            })
-        </script>
-    {% endif %}
-    {%  if entity_name=="composition" %}
-        <script>
-            $(".delete-span").click(function(e) {
+
+        {% endif %}
+        $(".delete-span").click(function(e) {
 {#                event.preventDefault();#}
-                var item = $(this).closest('.litem').find('.item');
-                var id = item.attr('id');
-                delete_instance('comp', id, function () {
-                     item.remove();
-                 });
-             }).hover(function () {
-                    $(this).closest(".litem").find('.item').addClass('highlight-red');
-            }, function () {
-                    $(this).closest(".litem").find('.item').removeClass('highlight-red');
-            });
-            $('.litem').hover(function(e) {
-                    $(this).find(".delete-span").attr('style', 'display:inline-block;');
-                },function () {
-                    $(this).find(".delete-span").attr('style', 'display:none;');
-            });
-        </script>
-    {% endif %}
+            var item = $(this).closest('.litem').find('.item');
+            var id = item.attr('id');
+            delete_instance('{{ entity_name }}', id, function () {
+                 item.remove();
+             });
+         }).hover(function () {
+                $(this).closest(".litem").find('.item').addClass('highlight-red');
+        }, function () {
+                $(this).closest(".litem").find('.item').removeClass('highlight-red');
+        });
+        $('.litem').hover(function(e) {
+                $(this).find(".delete-span").attr('style', 'display:inline-block;');
+            },function () {
+                $(this).find(".delete-span").attr('style', 'display:none;');
+        });
+    </script>
 {% endblock %}

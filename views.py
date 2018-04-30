@@ -46,7 +46,7 @@ def add_composition():
         composition = {
             'author_name': request_data['author_name'],
             'text': request_data['text'],
-            'title':  request_data['text']
+            'title':  request_data['title']
         }
         if any(not bool(val) for key, val in composition.items()):
             raise ValueError

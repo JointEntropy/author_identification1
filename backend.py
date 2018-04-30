@@ -132,7 +132,7 @@ class MBackEnd:
         else:
             self.add_author({'name': author_name})
             author_id = db.session.query(Author.id).filter_by(name=author_name).scalar()
-        c = Composition(title=title, text=text, author_id=author_id, features=pkl.dumps(features))
+        c = Composition(title=title, text=text, author_id=author_id, features=features)
 
 
         ### TODO здесь косяк с тем. что db импортирована криво и возникает несколько сессий.\
@@ -167,10 +167,10 @@ from sklearn.linear_model import LogisticRegression
 from gvars import modal_package_path
 
 decoder = Decoder(None)
-# inner_model = LogisticRegression()
-# pmodel = LinearModel(inner_model)
-inner_model = WordLSTM()
-classifier = LogisticRegression()  # KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
-pmodel = NetsModel(inner_model, classifier, modal_package_path)
+inner_model = LogisticRegression()
+pmodel = LinearModel(inner_model)
+# inner_model = WordLSTM()
+# classifier = LogisticRegression()  # KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
+# pmodel = NetsModel(inner_model, classifier, modal_package_path)
 be = MBackEnd(pmodel, decoder)
 
