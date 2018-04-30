@@ -159,14 +159,18 @@ class MBackEnd:
 
 
 from tools.decoders import Decoder
-from predict_models.LinearModels import LinearModel, LogisticRegression
+from predict_models.LinearModels import LinearModel
 from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 from gvars import modal_package_path
 
 decoder = Decoder(None)
-inner_model = LogisticRegression()
-pmodel = LinearModel(inner_model)
-# inner_model = WordLSTM()
-# pmodel = NetsModel(inner_model, modal_package_path)
+# inner_model = LogisticRegression()
+# pmodel = LinearModel(inner_model)
+inner_model = WordLSTM()
+classifier = LogisticRegression()  # KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
+pmodel = NetsModel(inner_model, classifier, modal_package_path)
 be = MBackEnd(pmodel, decoder)
 

@@ -1,4 +1,3 @@
-from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 import pandas as pd
@@ -10,8 +9,10 @@ from keras.models import Model, load_model
 
 
 class NetsModel(PredictModel):
-    def __init__(self, fp_model, model_package):
+    def __init__(self, fp_model, classifier,  model_package):
         self.fp_model = fp_model
+        self.classifier = classifier
+
         self.fp_model.tools = load_obj(model_package + '/preprocess_tools')
         self.fp_model.params = load_json(model_package + '/params.json')
 
@@ -19,16 +20,15 @@ class NetsModel(PredictModel):
         model = load_model(model_package + '/' + name,
                            custom_objects={'AttentionWithContext': AttentionWithContext})
         self.fp_model.model = Model(inputs=model.input, outputs=model.layers[-1].input)
-        self.knn = KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
 
     def fit(self, X, y):
-        self.knn.fit(X, y)
+        self.classifier.fit(X, y)
 
     def fit_extractor(self, texts):
         pass
 
     def predict(self, x):
-        predictions = self.knn.predict_proba([x])
+        predictions = self.classifier.predict_proba([x])
         return list(enumerate(predictions[0]))
 
     def predict_features(self, text):
