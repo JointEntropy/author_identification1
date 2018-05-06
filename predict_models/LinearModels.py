@@ -22,6 +22,10 @@ class LinearModel(PredictModel):
         self.vectorizer.fit(texts)
 
     def predict(self, X):
+        """
+        :param X:
+        :return: возвращает вероятности one vs all для каждого класса( по сути multiclass)
+        """
         predictions = self.model.predict_proba(X)
         return list(enumerate(predictions[0]))
 
@@ -36,6 +40,6 @@ class LinearModel(PredictModel):
         if self.normalize:
             texts = self._normalizer.normalize(texts)
         for f in self.vectorizer.transform(texts):
-            yield np.array(f.todense())
+            yield np.array(f.todense())[0]
 
 

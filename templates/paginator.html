@@ -1,9 +1,9 @@
 {% if page_id > 1 %}
-    <a href="/index/{{entity_name}}/{{ 1 }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+    <a href="/index/{{entity_name}}/{{ 1 }}?&search_str={{ search_str }}&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
         К первой
     </a>
     |
-    <a href="/index/{{entity_name}}/{{ page_id-1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+    <a href="/index/{{entity_name}}/{{ page_id-1}}?&search_str={{ search_str }}&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
        Предыдущая страница
     </a>
 {% endif %}
@@ -11,11 +11,11 @@
     |
 {% endif %}
 {% if page_id <pages %}
-    <a href="/index/{{entity_name}}/{{ page_id+1}}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+    <a href="/index/{{entity_name}}/{{ page_id+1}}?&search_str={{ search_str }}&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
        Следующая страница
     </a>
     |
-    <a href="/index/{{entity_name}}/{{ pages }}?&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
+    <a href="/index/{{entity_name}}/{{ pages }}?&search_str={{ search_str }}&filter_col={{filter_col}}&filter_idx={{filter_idx}}">
         К последней
     </a>
 {% endif %}

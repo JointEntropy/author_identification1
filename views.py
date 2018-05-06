@@ -39,6 +39,7 @@ def delete():
         be.del_comp(idx)
     return  json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
+
 @app.route('/add_comp', methods=['POST'])
 def add_composition():
     try:
@@ -86,31 +87,37 @@ def composition(comp_id):
 def index(entity_name, page_id):
     filter_col = request.args.get('filter_col', None)
     filter_idx = request.args.get('filter_idx', None)
-    MAX_ITEMS_PER_PAGE = 15
+    search_str = request.args.get('search_str', None)
     page_id = int(page_id)
 
-    if entity_name == 'author' and str(filter_col) == 'None':
-        paginator = Author.query.options(load_only('name', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
-        entities = paginator.items
-        header='Авторы'
-
-    elif entity_name == 'composition' and filter_col == 'author':
-        paginator = Composition.query.filter_by(author_id=filter_idx).\
-            options(load_only('title', 'author_id', 'id')).paginate(page_id, MAX_ITEMS_PER_PAGE, False)
-        entities = paginator.items
-        header = Author.query.get(filter_idx).name
-    elif entity_name == 'composition':
-        paginator = Composition.query.options(load_only('title', 'author_id', 'id')).paginate(page_id,
-                                                                      MAX_ITEMS_PER_PAGE, False)
-        entities = paginator.items
-        header='Произведения'
-
-    return render_template('index.html', header=header, entity_name=entity_name,
+    if str(search_str) != 'None':
+        if entity_name == 'composition':
+            q = Composition.query.filter(Composition.title.contains(search_str))\
+                .options(load_only('id', 'title','author_id'))
+            header = 'Поиск среди произведений по запросу "{}"'.format(search_str)
+        elif entity_name == 'author':
+            q = Author.query.filter(Author.name.contains(search_str)).options(load_only('id', 'name'))
+            header = 'Поиск среди авторов по запросу "{}"'.format(search_str)
+    else:
+        if entity_name == 'author' and str(filter_col) == 'None':
+            q = Author.query.options(load_only('name', 'id'))
+            header = 'Авторы'
+        elif entity_name == 'composition' and filter_col == 'author':
+            q = Composition.query.filter_by(author_id=filter_idx).options(load_only('title', 'author_id', 'id'))
+            header = Author.query.get(filter_idx).name
+        elif entity_name == 'composition':
+            q = Composition.query.options(load_only('title', 'author_id', 'id'))
+            header = 'Произведения'
+    paginator = q.paginate(page_id, app.config['MAX_ITEMS_PER_PAGE'], False)
+    entities = paginator.items
+    return render_template('index.html', header=header,
+                           entity_name=entity_name,
                            entities=entities,
                            page_id=page_id,
-                           pages=paginator.pages, # pages stands for max_pages
+                           pages=paginator.pages,
                            filter_col=filter_col,
-                           filter_idx=filter_idx)
+                           filter_idx=filter_idx,
+                           search_str=search_str)
 
 
 @app.route('/author/<author_id>')

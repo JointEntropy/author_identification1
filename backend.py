@@ -19,13 +19,16 @@ class MBackEnd:
         compositions_raw = Composition.query.options(load_only('text','features')).all()
         texts = [c.text for c in compositions_raw]
         if generate_features or fit_extractor:
+            print('fitting features extractor')
             self.predict_model.fit_extractor(texts)
         if generate_features:
+            print('generating features')
             texts_features = self.predict_model.prepare_features(texts)
             for c, f in zip(compositions_raw, texts_features):
                 c.features = f
             db.session.commit()
         if fit_predict_model:
+            print('fitting predict model')
             self.fit_predict_model()
 
     def fit_predict_model(self):
