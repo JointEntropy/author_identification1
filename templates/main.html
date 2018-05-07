@@ -43,7 +43,14 @@
                     <form id="analyze_form" method=post enctype=multipart/form-data>
                         <h2>Введите текст произведения</h2>
                         <p>Введите текст в поле или выберите файл с произведением</p>
+                        <br>
                         <textarea id="textar" form="analyze_form" name="text" placeholder="Введите отрывок произведения" ></textarea>
+                        <div class="stat-tab" style="opacity: 0;">
+                            <br>
+                            <strong>Число символов:</strong> <a id="char_count">125</a>
+{#                            <strong style="color: red"> Точность:</strong> <div id="accuracy">91.2</div>%#}
+                        </div>
+
                         <p>Укажите файл с произведением</p>
                         <p><input id="inputfile" type="file" name="file"><input   type="button" id="load_btn" value="Загрузить из файла" ></p>
                         <p><input type=submit  formaction="/submit/start"  value="Запуск анализа" ></p>
@@ -60,6 +67,9 @@
         </div>
     </div>
     <script src="{{ url_for("static", filename="js/main_logic.js") }}"></script>
+    <script>
+
+    </script>
 {% endblock %}
 
 

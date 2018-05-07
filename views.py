@@ -17,6 +17,20 @@ def debug_page():
     return render_template('main.html')
 
 
+@app.route('/analyze_quality', methods=['POST'])
+def analyze_quality():
+    text = request.form.get('text', None)
+    if text:
+        # result = be.analyze_quality()
+        result = {
+            'acc': 0.99,
+        }
+        result = json.dumps(result, indent=3)
+        return Response(result, mimetype='text/json')
+    else:
+        return abort(400)
+
+
 @app.route('/authors', methods=['GET'])
 def get_authors():
     """

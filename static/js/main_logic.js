@@ -71,5 +71,39 @@ $("#add_comp_btn").click(function(e) {
 });
 
 
+show_stat = false;
+$('#textar').bind('input propertychange',function () {
+    if  ($(this).val())
+    {
+        if (!show_stat )
+        {
+            $(".stat-tab").css({
+                opacity: 0}
+            ).animate({opacity:1},500);
+        }
+        $('.stat-tab').find('#char_count').text($(this).val().length);
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/analyze_quality",
+        //     data: {"text": $('#textar').val()},
+        //    contentType:"application/json; charset=utf-8",
+        //    dataType:"json"
+        // }).error(function (xhr, error_mess) {
+        //     console.log('Произошла ошибка');
+        //     alert('Ошибка ввода');
+        //     console.log(xhr.responseText);
+        // }).done(function(answer) {
+        //     $('.stat-tab').find('#accuracy').val((answer['acc']*100)+' %');
+        //
+        // });
+        show_stat = true;
 
-
+    }
+    else
+    {
+        show_stat =false;
+        $(".stat-tab").css({
+            opacity: 1}
+        ).animate({opacity:0},250);
+    }
+});
