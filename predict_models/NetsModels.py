@@ -2,24 +2,31 @@ import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 from .utils import (filter_chars,  preprocessing, load_obj, load_json,
-                    AttentionWithContext, split_sequence,  split_long_texts,
+                    split2sentences, group2articles, pad_sentences_df,
+                    AttentionWithContext, GlobalOneHalfPooling, split_sequence,  split_long_texts,
                     Normalizer)
 from predict_models.core import PredictModel
 from keras.models import Model, load_model
+from itertools import chain
 
 
 class NetsModel(PredictModel):
-    def __init__(self, fp_model, classifier,  model_package):
+    def __init__(self, fp_model, classifier,  model_package, normalizer=None):
         self.fp_model = fp_model
         self.classifier = classifier
 
-        self.fp_model.tools = load_obj(model_package + '/preprocess_tools')
-        self.fp_model.params = load_json(model_package + '/params.json')
+        tools = load_obj(model_package + '/preprocess_tools')
+        params = load_json(model_package + '/params.json')
+        nm = normalizer if normalizer is not None else Normalizer(backend='mystem', tokenizer=None)
 
         name = self.fp_model.params.get('model', 'model.h5')
         model = load_model(model_package + '/' + name,
-                           custom_objects={'AttentionWithContext': AttentionWithContext})
-        self.fp_model.model = Model(inputs=model.input, outputs=model.layers[-1].input)
+                           custom_objects={'AttentionWithContext': AttentionWithContext,
+                                           'GlobalOneHalfPooling': GlobalOneHalfPooling})
+        model = Model(inputs=model.input, outputs=model.layers[-1].input)
+        self.fp_model = fp_model(model=model,
+                                 tools=tools, params=params,
+                                 normalizer=nm)
 
     def fit(self, X, y):
         self.classifier.fit(X, y)
@@ -48,8 +55,23 @@ class NetsModel(PredictModel):
             yield f
 
 
-class BWordCharLSTM:
-    def process(self, text):
+class FeaturePredictModel:
+    def __init__(self, model, tools, params, normalizer):
+        self.nm = normalizer
+        self.model = model
+        self.nm = normalizer
+        self.tools = tools
+        self.params = params
+
+    def process(self, text, normalizer):
+        raise NotImplementedError
+
+    def predict(self, X):
+        raise NotImplementedError
+
+
+class BWordCharLSTM(FeaturePredictModel):
+    def process(self, text, normalizer):
         # нарезаем на куски, ибо кормить в сеть слишком большой не можем.
         split_threshold = self.params['split_threshold']
         if len(text) > split_threshold:
@@ -58,11 +80,10 @@ class BWordCharLSTM:
             text_split = [text]
         text_split = pd.Series(text_split)
         # предобработка на уровне слов.
-        nm = Normalizer(backend='mystem', tokenizer=None) # default tokenizer of mystem is used.
 
         # препроцессим вход.
         filtered_data = filter_chars(text_split)
-        text_word = nm.normalize(filtered_data)
+        text_word = self.nm.normalize(filtered_data)
 
         # основная часть функции preprocessing из wikisource/dataset, но без работы с метками.
         contexts = self.tools['words_tokenizer'].texts_to_sequences(text_word)
@@ -76,8 +97,8 @@ class BWordCharLSTM:
         return self.model.predict(X, verbose=1)
 
 
-class WordLSTM:
-    def process(self, text):
+class WordLSTM(FeaturePredictModel):
+    def process(self, text, normalizer):
         # нарезаем на куски, ибо кормить в сеть слишком большой не можем.
         split_threshold = self.params['split_threshold']
         if len(text) > split_threshold:
@@ -85,12 +106,10 @@ class WordLSTM:
         else:
             text_split = [text]
         text_split = pd.Series(text_split)
-        # предобработка на уровне слов.
-        nm = Normalizer(backend='mystem', tokenizer=None) # default tokenizer of mystem is used.
 
         # препроцессим вход.
         filtered_data = filter_chars(text_split)
-        text_word = nm.normalize(filtered_data)
+        text_word = self.nm.normalize(filtered_data)
 
         # основная часть функции preprocessing из wikisource/dataset, но без работы с метками.
         contexts = self.tools['words_tokenizer'].texts_to_sequences(text_word)
@@ -102,11 +121,77 @@ class WordLSTM:
         texts_df = split_long_texts(texts, np.arange(len(texts)), self.params['split_threshold'])
         filtered_data = filter_chars(texts_df['text'])
 
-        nm = Normalizer(backend='mystem')
-        texts_word = nm.normalize(filtered_data)
+#         nm = Normalizer(backend='mystem')
+        texts_word = self.nm.normalize(filtered_data)
         contexts = self.tools['words_tokenizer'].texts_to_sequences(texts_word)
         texts_word = pad_sequences(contexts, maxlen=self.params['MAX_TEXT_WORDS'])
         return texts_word, texts_df.index.values
 
     def predict(self, X):
         return self.model.predict(X, verbose=1)
+
+
+class SentenceWordLSTM(FeaturePredictModel):
+    def process(self, text, normalizer):
+        # нарезаем на куски, ибо кормить в сеть слишком большой не можем.
+        split_threshold = self.params['split_threshold']
+        if len(text) > split_threshold:
+            text_split = [''.join(text) for text in split_sequence(text, split_threshold) ]
+        else:
+            text_split = [text]
+        text_split = pd.Series(text_split)
+
+
+
+
+        # препроцессим вход.
+        filtered_data = filter_chars(text_split)
+
+        # нарезаем на предложения
+        splitted = split2sentences(filtered_data)
+        sentence_counts = splitted.apply(len)
+
+        sentences = pd.Series(list(chain.from_iterable(splitted)))
+
+
+        nm = Normalizer()
+        normalized_sentences = nm.normalize(sentences)
+        normalized_texts = pd.Series(list(group2articles(normalized_sentences, sentence_counts)))
+
+
+
+
+
+
+        text_word = self.nm.normalize(filtered_data)
+
+        # основная часть функции preprocessing из wikisource/dataset, но без работы с метками.
+        contexts = self.tools['words_tokenizer'].texts_to_sequences(text_word)
+        text_word = pad_sequences(contexts, maxlen=self.params['MAX_TEXT_WORDS'])
+        return text_word
+
+    def process_batch(self, texts):
+
+        texts_df = split_long_texts(texts, np.arange(len(texts)), self.params['split_threshold'])
+        filtered_data = filter_chars(texts_df['text'])
+
+        # сплитим на предложения
+        splitted = split2sentences(filtered_data)
+        sentence_counts = splitted.apply(len)
+
+        sentences = pd.Series(list(chain.from_iterable(splitted)))
+        nm = Normalizer()
+        normalized_sentences = nm.normalize(sentences)
+        normalized_texts = pd.Series(list(group2articles(normalized_sentences, sentence_counts)))
+
+
+
+
+        texts_word = self.nm.normalize(filtered_data)
+        contexts = self.tools['words_tokenizer'].texts_to_sequences(texts_word)
+        texts_word = pad_sequences(contexts, maxlen=self.params['MAX_TEXT_WORDS'])
+        return texts_word, texts_df.index.values
+
+    def predict(self, X):
+        return self.model.predict(X, verbose=1)
+

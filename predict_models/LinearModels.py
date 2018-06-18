@@ -7,10 +7,11 @@ import numpy as np
 
 
 class LinearModel(PredictModel):
-    def __init__(self, model, normalize=False):
+    def __init__(self, model, normalizer=None):
         self.model = model
-        self.normalize = normalize
-        self._normalizer = Normalizer()
+        self.normalize = normalizer is not None
+        if self.normalize:
+            self._normalizer = normalizer
         self.vectorizer = TfidfVectorizer(max_features=5000)
 
     def fit(self, X, y):
