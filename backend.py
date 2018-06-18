@@ -164,15 +164,15 @@ from sklearn.linear_model import SGDClassifier, LogisticRegression
 from gvars import modal_package_path
 
 decoder = Decoder(None)
-inner_model = SGDClassifier(loss='log')#LogisticRegression()
+# inner_model = SGDClassifier(loss='log')#LogisticRegression()
 
-from predict_models.LinearModels import LinearModel
-pmodel = LinearModel(inner_model)
+# from predict_models.LinearModels import LinearModel
+# pmodel = LinearModel(inner_model)
 
 
-# from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
-# inner_model = WordLSTM()
-# classifier = LogisticRegression()  # KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
-# pmodel = NetsModel(inner_model, classifier, modal_package_path)
+from predict_models.NetsModels import NetsModel, WordLSTM, BWordCharLSTM
+inner_model = WordLSTM
+classifier = SGDClassifier(loss='log')  # KNeighborsClassifier(n_neighbors=2, n_jobs=-1)
+pmodel = NetsModel(inner_model, classifier, modal_package_path)
 be = MBackEnd(pmodel, decoder)
-
+#

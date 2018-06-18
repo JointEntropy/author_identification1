@@ -19,7 +19,7 @@ class NetsModel(PredictModel):
         params = load_json(model_package + '/params.json')
         nm = normalizer if normalizer is not None else Normalizer(backend='mystem', tokenizer=None)
 
-        name = self.fp_model.params.get('model', 'model.h5')
+        name = params.get('model', 'model.h5')
         model = load_model(model_package + '/' + name,
                            custom_objects={'AttentionWithContext': AttentionWithContext,
                                            'GlobalOneHalfPooling': GlobalOneHalfPooling})
@@ -118,7 +118,7 @@ class WordLSTM(FeaturePredictModel):
 
     def process_batch(self, texts):
 
-        texts_df = split_long_texts(texts, np.arange(len(texts)), self.params['split_threshold'])
+        texts_df = split_long_texts(texts, np.arange(len(texts)), np.arange(len(texts)),self.params['split_threshold'])
         filtered_data = filter_chars(texts_df['text'])
 
 #         nm = Normalizer(backend='mystem')

@@ -2,14 +2,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from init_db import db_create
-
+from predict_models.utils import filter_by_samples_count
 
 # connection = engine.raw_connection()
 # data_path = '/media/grigory/Data/DIPLOM_DATA/dataset_with_names.csv'
-data_path = '/media/grigory/Data/DIPLOM_DATA/loveread_fantasy_dataset_0.csv'
+data_path = '/media/grigory/Диск/DIPLOM_DATA/loveread_fantasy_dataset_0.csv'
 
 # db_path = 'sqlite:///../data/test.db'
-db_path  = 'sqlite:////media/grigory/Data/DIPLOM_DATA/db/loveread_logreg_fantasy_0.db'
+db_path  = 'sqlite:////media/grigory/Диск/DIPLOM_DATA/db/loveread_wordlstm_fantasy_0.db'
 
 
 def save_dataframe(engine, df, table):
@@ -56,7 +56,19 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
 
     df = pd.read_csv(data_path)
-    print(df.shape[0])
+
+    # Фильтруем так как при обучении
+
+    # выбираем топ 300 авторов
+    authors_count_limit = 300
+    top_authors = set(df['author'].value_counts()[:authors_count_limit].index.values)
+    mask = df['author'].apply(lambda x: x in top_authors)
+    df = df[mask]
+
+    # по минимальному числу фрагментов
+    samples_count_lower = 50
+    df = filter_by_samples_count(df, samples_count_lower)
+
     # assert df.index.value_counts().values.max() == 1
 
     ## Готовим таблицу с авторами
