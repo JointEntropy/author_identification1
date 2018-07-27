@@ -46,13 +46,6 @@ class MBackEnd:
         self.predict_model.fit(features, targets)
 
     def predict(self, text):
-        """
-        Получаем сырой текст запроса. Декодирует его и предсказывает топ 5 бомжей.
-
-        :param X: сырой текст запроса.
-        :return: упорядоченный по убываний список author_id и prob.
-        """
-
         # декодируем
         text = self.decoder.process(text)
         # предсказываем фичи
