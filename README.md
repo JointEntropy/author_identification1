@@ -24,4 +24,4 @@
   
 _________
 
-[Модуль 2](https://github.com/Pichenug/author_identification2)
+[Модуль 2](https://github.com/JointEntropy/author_identification2)
